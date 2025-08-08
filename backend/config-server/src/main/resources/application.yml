@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: native
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        native:
+          search-locations:
+            # When using Relative Path - It's better than Full Path
+            - ./backend/config-repo/
+
+            #  When using Full Path
+            #  file:///home/insu-hp/Documents/GitHub/spring-cloud-msa-labs-v1/backend/config-repo
+
+            # You can use git-repo. Just ask Gemini or CharGpt - It's the best way to set up Config-Server (at-least in my opinion. cuz you don't have to change code)
+
+
+            # ***Consider Security***
+
+
+server:
+  port: 8888
