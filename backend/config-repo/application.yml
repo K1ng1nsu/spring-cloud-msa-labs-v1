@@ -13,6 +13,16 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, refresh
+  endpoint:
+    refresh:
+      enabled: true
+
 #server:
 #  port: 8083
 
