@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -32,8 +33,8 @@ public class OrderService {
         UserDto userById = userServiceClient.getUserById(orderRequestDto.getUserId());
         ProductDto productById = productServiceClient.getProductById(orderRequestDto.getProductId());
 
-        checkNull(userById,"User");
-        checkNull(productById,"Product");
+        checkNull(userById, "User");
+        checkNull(productById, "Product");
 
         checkProductQuantity(productById, orderRequestDto.getQuantity());
 
@@ -49,22 +50,20 @@ public class OrderService {
         return order;
     }
 
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserIdOrderByCreatedAt(userId);
+    }
+
     private void checkProductQuantity(ProductDto productDto, Integer quantity) {
         if (productDto.getStockQuantity() < quantity) throw new RuntimeException("Stock Quantity Not Enough");
     }
 
     private BigDecimal calculatePrice(ProductDto productDto, Integer quantity) {
-        return BigDecimal.valueOf(productDto.getStockQuantity()).multiply(BigDecimal.valueOf(quantity));
+        return productDto.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
     private void checkNull(Object shouldNotNullDto, String DtoName) {
         if (shouldNotNullDto == null) throw new RuntimeException(DtoName + "Must not be null");
     }
-
-
-//    public List<Order> findAll() {
-//        return orderRepository.findAll();
-//    }
-
 
 }
