@@ -51,7 +51,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
-        return orderRepository.findByUserIdOrderByCreatedAt(userId);
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     private void checkProductQuantity(ProductDto productDto, Integer quantity) {
