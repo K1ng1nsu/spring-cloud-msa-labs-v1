@@ -18,13 +18,13 @@ public class UserServiceFacade {
     @CircuitBreaker(name = "user-service", fallbackMethod = "getUserFallback")
     @Retry(name = "user-service")
     public UserDto getUserByIdWithFallback(Long id) {
-        log.info("try call to getUserByIdWithFallback with id: {}", id);
+        log.info("* try call to getUserByIdWithFallback with id: {}", id);
 
         return userServiceClient.getUserById(id);
     }
 
-    public UserDto getUserFallback(Long id, Throwable ex) {
-        log.warn("Fallback called ! userId: {}, error: {} ", id, ex.getMessage());
+    protected UserDto getUserFallback(Long id, Throwable ex) {
+        log.warn("**** Fallback called ! userId: {}, error: {} ", id, ex.getMessage());
         return getDefaultUser(id);
     }
 
