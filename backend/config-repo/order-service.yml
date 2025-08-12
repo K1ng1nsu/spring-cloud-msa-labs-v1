@@ -6,3 +6,42 @@ spring:
     name: order-service
   datasource:
     url: jdbc:mysql://localhost:3307/order_service_db
+
+# fault-tolerance about calling User Service
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        # 슬라이딩 윈도우의 타입: 호출 횟수를 기반으로 통계를 수집합니다. (시간 기반도 가능)
+        sliding-window-type: count_based
+
+        # 슬라이딩 윈도우의 크기: 최근 3개의 호출 결과를 기반으로 실패율을 계산합니다.
+        # minimum-number-of-calls가 충족된 이후부터, 서킷 브레이커는 이
+        # sliding-window-size 내의 호출들을 기준으로 실패율을 계산합니다.
+        sliding-window-size: 3
+
+        # 서킷 브레이커가 실패율을 계산하기 위한 최소 호출 횟수입니다.
+        # 이 횟수 미만으로는 서킷 브레이커가 열리지 않습니다.
+        minimum-number-of-calls: 3
+
+        # 실패율 임계값: 슬라이딩 윈도우 내의 실패율이 50%를 초과하면 서킷 브레이커가 'OPEN' 상태로 전환됩니다.
+        # 'OPEN' 상태에서는 더 이상 user-service로의 호출이 허용되지 않습니다.
+        # sliding-window-size 내의 호출들을 기준으로 실패율을 계산합니다.
+        failure-rate-threshold: 50 # 50% fault - Circuit Open(no-more connect)
+
+        # 'HALF_OPEN' 상태에서 허용되는 호출 횟수입니다.
+        # 서킷 브레이커가 'OPEN' 상태에서 일정 시간(waitDurationInOpenState)이 지나면 'HALF_OPEN' 상태로 전환됩니다.
+        # 이 상태에서 2번의 호출을 허용하여 user-service의 복구 여부를 확인합니다.
+        # 이 호출들이 성공하면 서킷 브레이커는 'CLOSED' 상태로 돌아가고, 실패하면 다시 'OPEN' 상태로 전환됩니다.
+        permitted-number-of-calls-in-half-open-state: 2
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, circuitbreakers, circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true

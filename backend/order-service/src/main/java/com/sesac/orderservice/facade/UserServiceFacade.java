@@ -5,7 +5,6 @@ import com.sesac.orderservice.client.dto.UserDto;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Fallback;
 import org.springframework.stereotype.Service;
 
 @Service
