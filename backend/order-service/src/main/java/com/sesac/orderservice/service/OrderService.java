@@ -8,6 +8,8 @@ import com.sesac.orderservice.dto.OrderRequestDto;
 import com.sesac.orderservice.entity.Order;
 import com.sesac.orderservice.facade.UserServiceFacade;
 import com.sesac.orderservice.repository.OrderRepository;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ public class OrderService {
     private final UserServiceClient userServiceClient;
     private final UserServiceFacade userServiceFacade;
 
+    private final Tracer tracer;
+
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Order not found with id: " + id));
@@ -32,24 +36,40 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(OrderRequestDto orderRequestDto) {
-        UserDto userById = userServiceFacade.getUserByIdWithFallback(orderRequestDto.getUserId());
-        ProductDto productById = productServiceClient.getProductById(orderRequestDto.getProductId());
 
-        checkNull(userById, "User");
-        checkNull(productById, "Product");
+        Span span = tracer
+                .nextSpan()
+                .name("createOrder")
+                .tag("order.userId", orderRequestDto.getUserId())
+                .tag("order.productId", orderRequestDto.getProductId())
+                .start();
 
-        checkProductQuantity(productById, orderRequestDto.getQuantity());
+        try(Tracer.SpanInScope spanInScope = tracer.withSpan(span)) {
+            UserDto userById = userServiceFacade.getUserByIdWithFallback(orderRequestDto.getUserId());
+            ProductDto productById = productServiceClient.getProductById(orderRequestDto.getProductId());
 
-        BigDecimal totalPrice = calculatePrice(productById, orderRequestDto.getQuantity());
+            checkNull(userById, "User");
+            checkNull(productById, "Product");
 
-        Order order = new Order();
-        order.setUserId(userById.getId());
-        order.setTotalAmount(totalPrice);
-        order.setStatus("COMPLETED");
+            checkProductQuantity(productById, orderRequestDto.getQuantity());
 
-        orderRepository.save(order);
+            BigDecimal totalPrice = calculatePrice(productById, orderRequestDto.getQuantity());
 
-        return order;
+            Order order = new Order();
+            order.setUserId(userById.getId());
+            order.setTotalAmount(totalPrice);
+            order.setStatus("COMPLETED");
+
+            orderRepository.save(order);
+
+            return order;
+        }catch (Exception e){
+            span.tag("error", e.getMessage());
+
+            throw e;
+        }finally {
+            span.end();
+        }
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
