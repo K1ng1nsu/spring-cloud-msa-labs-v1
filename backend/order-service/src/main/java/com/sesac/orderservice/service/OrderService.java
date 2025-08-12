@@ -6,6 +6,7 @@ import com.sesac.orderservice.client.dto.ProductDto;
 import com.sesac.orderservice.client.dto.UserDto;
 import com.sesac.orderservice.dto.OrderRequestDto;
 import com.sesac.orderservice.entity.Order;
+import com.sesac.orderservice.facade.UserServiceFacade;
 import com.sesac.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductServiceClient productServiceClient;
     private final UserServiceClient userServiceClient;
+    private final UserServiceFacade userServiceFacade;
 
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(
@@ -30,7 +32,7 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(OrderRequestDto orderRequestDto) {
-        UserDto userById = userServiceClient.getUserById(orderRequestDto.getUserId());
+        UserDto userById = userServiceFacade.getUserByIdWithFallback(orderRequestDto.getUserId());
         ProductDto productById = productServiceClient.getProductById(orderRequestDto.getProductId());
 
         checkNull(userById, "User");

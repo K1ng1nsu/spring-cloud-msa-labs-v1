@@ -1,0 +1,39 @@
+package com.sesac.orderservice.facade;
+
+import com.sesac.orderservice.client.UserServiceClient;
+import com.sesac.orderservice.client.dto.UserDto;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Fallback;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class UserServiceFacade {
+
+    private final UserServiceClient userServiceClient;
+
+    @CircuitBreaker(name = "user-service", fallbackMethod = "getUserFallback")
+    public UserDto getUserByIdWithFallback(Long id) {
+        log.info("try call to getUserByIdWithFallback with id: {}", id);
+
+        return userServiceClient.getUserById(id);
+    }
+
+    public UserDto getUserFallback(Long id, Throwable ex) {
+        log.warn("Fallback called ! userId: {}, error: {} ", id, ex.getMessage());
+        return getDefaultUser(id);
+    }
+
+    private UserDto getDefaultUser(Long id) {
+
+        UserDto defaultUser = new UserDto();
+        defaultUser.setId(id);
+        defaultUser.setName("tempUserName");
+        defaultUser.setEmail("temp@example.com");
+
+        return defaultUser;
+    }
+}
