@@ -34,6 +34,15 @@ resilience4j:
         # 이 상태에서 2번의 호출을 허용하여 user-service의 복구 여부를 확인합니다.
         # 이 호출들이 성공하면 서킷 브레이커는 'CLOSED' 상태로 돌아가고, 실패하면 다시 'OPEN' 상태로 전환됩니다.
         permitted-number-of-calls-in-half-open-state: 2
+    circuit-breaker-aspect-order: 1
+  retry:
+    instances:
+      user-service:
+        max-attempts: 2
+        # retry time-gap
+        wait-duration: 1s
+    retry-aspect-order: 2
+
 management:
   endpoints:
     web:
