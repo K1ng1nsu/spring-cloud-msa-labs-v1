@@ -27,6 +27,17 @@ services:
     networks:
       - msa-network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: msa-rabbitmq
+    ports:
+      - "5672:5672" #AMQP Port
+      - "15672:15672" #UI Port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    networks:
+      - msa-network
 
 volumes:
   mysql-data:
