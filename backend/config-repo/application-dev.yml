@@ -10,6 +10,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
 
 
 management:
@@ -43,6 +48,15 @@ logging:
     org.springframework.web: DEBUG
 
 
+order:
+  event:
+    exchange: order.exchange
+    queue:
+      notification: order.notification.queue
+      inventory: order.inventory.queue
+    routing-key:
+      notification: order.notification
+      inventory: order.inventory
 
 
 info:
