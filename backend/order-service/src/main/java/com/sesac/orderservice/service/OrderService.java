@@ -6,6 +6,7 @@ import com.sesac.orderservice.client.dto.ProductDto;
 import com.sesac.orderservice.client.dto.UserDto;
 import com.sesac.orderservice.dto.OrderRequestDto;
 import com.sesac.orderservice.entity.Order;
+import com.sesac.orderservice.entity.OrderStatus;
 import com.sesac.orderservice.event.OrderCreatedEvent;
 import com.sesac.orderservice.event.OrderEventPublisher;
 import com.sesac.orderservice.facade.UserServiceFacade;
@@ -62,7 +63,7 @@ public class OrderService {
             Order order = new Order();
             order.setUserId(userById.getId());
             order.setTotalAmount(totalPrice);
-            order.setStatus("COMPLETED");
+            order.setStatus(OrderStatus.PENDING);
 
             orderRepository.save(order);
 
