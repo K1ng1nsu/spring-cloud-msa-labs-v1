@@ -1,4 +1,4 @@
-package com.sesac.productservice.event;
+package com.sesac.orderservice.event.product.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
