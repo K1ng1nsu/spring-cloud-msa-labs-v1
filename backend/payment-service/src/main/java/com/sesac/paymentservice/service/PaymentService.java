@@ -33,7 +33,7 @@ public class PaymentService {
 
         try {
             Thread.sleep(2000);
-            if (Math.random() < 2) {
+            if (Math.random() < 0.3) {
                 throw new RuntimeException("deposit not enough");
             }
 
