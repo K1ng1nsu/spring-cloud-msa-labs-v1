@@ -7,6 +7,8 @@ import com.sesac.orderservice.client.dto.UserDto;
 import com.sesac.orderservice.dto.OrderRequestDto;
 import com.sesac.orderservice.entity.Order;
 import com.sesac.orderservice.entity.OrderStatus;
+import com.sesac.orderservice.event.payment.in.PaymentCompletedOrderCompletedEvent;
+import com.sesac.orderservice.event.payment.in.PaymentFailedOrderCanceledEvent;
 import com.sesac.orderservice.event.product.out.OrderCreatedEvent;
 import com.sesac.orderservice.event.product.out.OrderEventPublisher;
 import com.sesac.orderservice.facade.UserServiceFacade;
@@ -34,6 +36,7 @@ public class OrderService {
 
     private final Tracer tracer;
 
+    @Transactional
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Order not found with id: " + id));
@@ -84,6 +87,20 @@ public class OrderService {
 
     public List<Order> getOrdersByUserId(Long userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional
+    public void handlePaymentCompleted(PaymentCompletedOrderCompletedEvent paymentCompletedOrderCompletedEvent) {
+        Order byId = findById(paymentCompletedOrderCompletedEvent.getOrderId());
+        byId.setStatus(OrderStatus.COMPLETED);
+        orderRepository.save(byId);
+    }
+
+    @Transactional
+    public void handlePaymentFailed(PaymentFailedOrderCanceledEvent paymentFailedOrderCanceledEvent) {
+        Order byId = findById(paymentFailedOrderCanceledEvent.getOrderId());
+        byId.setStatus(OrderStatus.CANCELED);
+        orderRepository.save(byId);
     }
 
     private OrderCreatedEvent createOrderCreatedEvent(Order order, Integer quantity, Long productId) {

@@ -31,6 +31,7 @@ public class Payment {
     private BigDecimal amount;
 
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
 

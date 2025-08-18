@@ -10,8 +10,10 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCompletedEvent implements Serializable {
+public class PaymentFailedOrderCanceledEvent implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private Long orderId;
 
 }

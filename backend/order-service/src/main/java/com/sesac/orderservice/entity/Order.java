@@ -26,6 +26,8 @@ public class Order {
     @Column(nullable = false, columnDefinition = "decimal(10,2)")
     private BigDecimal totalAmount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
     @CreationTimestamp

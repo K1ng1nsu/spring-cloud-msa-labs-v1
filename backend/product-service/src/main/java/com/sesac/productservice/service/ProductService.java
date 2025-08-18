@@ -1,6 +1,7 @@
 package com.sesac.productservice.service;
 
 import com.sesac.productservice.entity.Product;
+import com.sesac.productservice.event.payment.in.PaymentFailedRestoreStockEvent;
 import com.sesac.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,19 @@ public class ProductService {
 
         productRepository.save(byId);
 
-        log.info("*Decrease stock quantity successfully with productId: {} and remain quantity: {} ",  productId, byId.getStockQuantity());
+        log.info("*Decrease stock quantity successfully with productId: {} and remain quantity: {} ", productId, byId.getStockQuantity());
+    }
+
+    @Transactional
+    public void restoreStock(PaymentFailedRestoreStockEvent paymentFailedRestoreStockEvent) {
+        Long productId = paymentFailedRestoreStockEvent.getProductId();
+        Integer quantity = paymentFailedRestoreStockEvent.getQuantity();
+
+        Product byId = findById(productId);
+
+        byId.setStockQuantity(byId.getStockQuantity() + quantity);
+
+        productRepository.save(byId);
     }
 
 

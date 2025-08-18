@@ -1,7 +1,9 @@
-package com.sesac.productservice.event.order;
+package com.sesac.productservice.event.order.in;
 
-import com.sesac.productservice.event.payment.PaymentEventPublisher;
-import com.sesac.productservice.event.payment.PaymentRequestEvent;
+import com.sesac.productservice.event.order.out.OrderEventPublisher;
+import com.sesac.productservice.event.order.out.InventoryFailedEvent;
+import com.sesac.productservice.event.payment.out.PaymentEventPublisher;
+import com.sesac.productservice.event.payment.out.PaymentRequestEvent;
 import com.sesac.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

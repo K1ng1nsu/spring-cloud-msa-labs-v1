@@ -1,4 +1,4 @@
-package com.sesac.productservice.event.order;
+package com.sesac.productservice.event.order.out;
 
 
 import lombok.RequiredArgsConstructor;

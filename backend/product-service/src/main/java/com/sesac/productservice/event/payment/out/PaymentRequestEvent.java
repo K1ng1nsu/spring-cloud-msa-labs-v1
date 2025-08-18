@@ -1,4 +1,4 @@
-package com.sesac.productservice.event.payment;
+package com.sesac.productservice.event.payment.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
