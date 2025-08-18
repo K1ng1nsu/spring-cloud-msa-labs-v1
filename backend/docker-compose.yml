@@ -1,0 +1,148 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: msa-mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: 123qwe
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    restart: always
+    networks:
+      - msa-network
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: msa-zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - msa-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: msa-rabbitmq
+    ports:
+      - "5672:5672" #AMQP Port
+      - "15672:15672" #UI Port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    networks:
+      - msa-network
+
+  config-server:
+    container_name: config-server
+    build:
+      context: ./config-server
+    networks:
+      - msa-network
+
+
+  eureka-server:
+    container_name: eureka-server
+    build:
+      context: ./eureka-server
+    depends_on:
+      - config-server
+    ports:
+      - "8761:8761"
+    networks:
+      - msa-network
+
+
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+  notification-service:
+    container_name: notification-service
+    build:
+      context: ./notification-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+  order-service:
+    container_name: order-service
+    build:
+      context: ./order-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+  payment-service:
+    container_name: payment-service
+    build:
+      context: ./payment-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+  product-service:
+    container_name: product-service
+    build:
+      context: ./product-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+  user-service:
+    container_name: user-service
+    build:
+      context: ./user-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+      - zipkin
+      - rabbitmq
+    networks:
+      - msa-network
+
+volumes:
+  mysql-data:
+
+networks:
+  msa-network:
+    driver: bridge
